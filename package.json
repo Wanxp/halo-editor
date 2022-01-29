@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/halo-dev/halo-editor#readme",
   "dependencies": {
+    "asciidoctor": "^2.2.6",
     "github-markdown-css": "4.0.0"
   },
   "devDependencies": {

@@ -178,7 +178,7 @@ import {
 } from "./lib/toolbar_left_click.js";
 import { toolbar_right_click } from "./lib/toolbar_right_click.js";
 import { CONFIG } from "./lib/config.js";
-import markdown from "./lib/mixins/markdown.js";
+import asciidoctor from "./lib/mixins/asciidoctor.js";
 
 import md_toolbar_left from "./components/md-toolbar-left.vue";
 import md_toolbar_right from "./components/md-toolbar-right.vue";
@@ -186,7 +186,7 @@ import "./lib/font/css/fontello.css";
 import "github-markdown-css/github-markdown.css";
 
 export default {
-  mixins: [markdown],
+  mixins: [asciidoctor],
   props: {
     scrollStyle: {
       // 是否渲染滚动条样式(webkit)
@@ -452,7 +452,7 @@ export default {
       }
       this.__oFReader = new FileReader();
       this.__oFReader.onload = function (oFREvent) {
-        $vm.markdownIt.image_add(pos, oFREvent.target.result);
+        $vm.image_add(pos, oFREvent.target.result);
         $file.miniurl = oFREvent.target.result;
         if (isinsert === true) {
           // 去除特殊字符
@@ -460,9 +460,8 @@ export default {
             /[\[\]\(\)\+\{\}&\|\\\*^%$#@\-]/g,
             ""
           );
-
           $vm.insertText($vm.getTextareaDom(), {
-            prefix: "![" + $file._name + "](" + pos + ")",
+            prefix: "image::(" + pos + ")[" + $file._name + "]",
             subfix: "",
             str: ""
           });
@@ -480,16 +479,16 @@ export default {
     },
     $imgUpdateByUrl(pos, url) {
       var $vm = this;
-      this.markdownIt.image_add(pos, url);
+      this.image_add(pos, url);
       this.$nextTick(function () {
-        $vm.d_render = this.markdownIt.render(this.d_value);
+        $vm.d_render = this.render(this.d_value);
       });
     },
     $img2Url(fileIndex, url) {
       var reg_str =
-        "/(!\\[[^\\[]*?\\](?=\\())\\(\\s*(" + fileIndex + ")\\s*\\)/g";
+        "/(image::)\\(\\s*(1)\\s*\\)(?=\\[)(\\[[^\\[]*?\\])/g";
       var reg = eval(reg_str);
-      this.d_value = this.d_value.replace(reg, "$1(" + url + ")");
+      this.d_value = this.d_value.replace(reg, "$1" + url + "$3");
       this.$refs.toolbar_left.$changeUrl(fileIndex, url);
       this.iRender();
     },
@@ -594,7 +593,7 @@ export default {
     },
     iRender(toggleChange) {
       var $vm = this;
-      this.$render($vm.d_value, function (res) {
+      this.render($vm.d_value, function (res) {
         // render
         $vm.d_render = res;
         $vm.$nextTick(() => {
